@@ -4,104 +4,321 @@
   <meta charset="UTF-8">
   <title>Weather App</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #4facfe, #00f2fe);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       margin: 0;
-      color: #333;
-    }
-
-    .container {
-      background: white;
+      min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+      color: #f8f9fb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 20px;
-      border-radius: 15px;
-      text-align: center;
-      width: 300px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
 
-    input {
-      padding: 10px;
-      width: 70%;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+    .app {
+      width: 100%;
+      max-width: 720px;
     }
 
-    button {
-      padding: 10px;
+    .search-card {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .search-card input {
+      flex: 1;
       border: none;
-      background: #4facfe;
-      color: white;
-      border-radius: 5px;
+      border-radius: 50px;
+      padding: 14px 18px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .search-card button {
+      border: none;
+      border-radius: 50px;
+      padding: 14px 24px;
+      background: rgba(255,255,255,0.22);
+      color: #fff;
+      font-weight: 700;
       cursor: pointer;
+      transition: background 0.2s ease;
     }
 
-    button:hover {
-      background: #007bff;
+    .search-card button:hover {
+      background: rgba(255,255,255,0.35);
     }
 
-    .weather {
-      margin-top: 20px;
+    .weather-card,
+    .forecast-card {
+      border-radius: 24px;
+      backdrop-filter: blur(15px);
+      background: rgba(255,255,255,0.12);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.14);
+      padding: 30px;
+      margin-bottom: 20px;
     }
 
-    .temp {
-      font-size: 2em;
-      font-weight: bold;
+    .weather-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .city-info {
+      flex: 1;
+    }
+
+    .city-name {
+      margin: 0 0 10px;
+      font-size: 2rem;
+      letter-spacing: 1px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      font-size: 0.95rem;
+      color: rgba(248, 249, 251, 0.82);
+    }
+
+    .meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .weather-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 30px;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .weather-icon {
+      font-size: 4.5rem;
+      line-height: 1;
+    }
+
+    .temperature {
+      font-size: 6rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .condition {
+      margin: 0;
+      font-size: 1.35rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #eef6ff;
+    }
+
+    .forecast-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 14px;
+      align-items: center;
+      justify-items: center;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    .forecast-day {
+      padding: 14px 10px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.08);
+      width: 100%;
+    }
+
+    .forecast-day .icon {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+
+    .message {
+      margin-top: 10px;
+      text-align: center;
+      color: #ffe6e6;
+      font-weight: 700;
+    }
+
+    @media (max-width: 640px) {
+      .forecast-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .weather-header,
+      .weather-main {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .temperature {
+        font-size: 4rem;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="app">
+    <div class="search-card">
+      <input id="city" type="text" placeholder="Enter city" autocomplete="off">
+      <button onclick="getWeather()">Search</button>
+    </div>
 
-<div class="container">
-  <h2>Weather App</h2>
-  <input type="text" id="city" placeholder="Enter city">
-  <button onclick="getWeather()">Search</button>
+    <div class="weather-card" id="weather-card">
+      <div class="weather-header">
+        <div class="city-info">
+          <p class="city-name" id="city-name">City Name</p>
+          <div class="meta">
+            <span id="day">MONDAY</span>
+            <span id="date">00/00/2016</span>
+            <span id="wind">Wind 6 km/h</span>
+            <span id="humidity">30%</span>
+          </div>
+        </div>
+        <div class="weather-main">
+          <div class="weather-icon" id="weather-icon">☁️</div>
+          <div>
+            <p class="temperature" id="temp">22°</p>
+            <p class="condition" id="condition">PARTLY CLOUDY</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <div class="weather" id="weather"></div>
-</div>
+    <div class="forecast-card">
+      <div class="forecast-grid" id="forecast"></div>
+    </div>
 
-<script>
-  const apiKey = "YOUR_API_KEY_HERE";
+    <div class="message" id="message"></div>
+  </div>
 
-  async function getWeather() {
-    const city = document.getElementById("city").value;
-    const weatherDiv = document.getElementById("weather");
+  <script>
+    const mockWeather = {
+      london: {
+        name: 'London',
+        temp: 22,
+        condition: 'Partly Cloudy',
+        icon: '⛅',
+        wind: '6 km/h',
+        humidity: '30%',
+        day: 'Monday',
+        date: '00/00/2016',
+        forecast: [
+          { day: 'Tue', icon: '☀️', temp: 25 },
+          { day: 'Wed', icon: '☁️', temp: 20 },
+          { day: 'Thu', icon: '🌧️', temp: 19 },
+          { day: 'Fri', icon: '⛈️', temp: 15 },
+          { day: 'Sat', icon: '❄️', temp: -5 },
+          { day: 'Sun', icon: '🌬️', temp: 25 }
+        ]
+      },
+      tokyo: {
+        name: 'Tokyo',
+        temp: 28,
+        condition: 'Sunny',
+        icon: '☀️',
+        wind: '8 km/h',
+        humidity: '45%',
+        day: 'Tuesday',
+        date: '04/23/2026',
+        forecast: [
+          { day: 'Wed', icon: '☀️', temp: 29 },
+          { day: 'Thu', icon: '🌤️', temp: 27 },
+          { day: 'Fri', icon: '🌧️', temp: 22 },
+          { day: 'Sat', icon: '⛅', temp: 24 },
+          { day: 'Sun', icon: '🌧️', temp: 21 },
+          { day: 'Mon', icon: '☀️', temp: 26 }
+        ]
+      },
+      paris: {
+        name: 'Paris',
+        temp: 19,
+        condition: 'Cloudy',
+        icon: '☁️',
+        wind: '10 km/h',
+        humidity: '55%',
+        day: 'Wednesday',
+        date: '04/23/2026',
+        forecast: [
+          { day: 'Thu', icon: '☁️', temp: 20 },
+          { day: 'Fri', icon: '🌧️', temp: 18 },
+          { day: 'Sat', icon: '🌦️', temp: 16 },
+          { day: 'Sun', icon: '❄️', temp: 3 },
+          { day: 'Mon', icon: '☀️', temp: 22 },
+          { day: 'Tue', icon: '🌤️', temp: 23 }
+        ]
+      }
+    };
 
-    if (!city) {
-      weatherDiv.innerHTML = "Please enter a city name.";
-      return;
+    const cityInput = document.getElementById('city');
+    const messageEl = document.getElementById('message');
+
+    function renderWeather(data) {
+      document.getElementById('city-name').textContent = data.name;
+      document.getElementById('temp').textContent = data.temp + '°';
+      document.getElementById('condition').textContent = data.condition.toUpperCase();
+      document.getElementById('weather-icon').textContent = data.icon;
+      document.getElementById('wind').textContent = 'Wind ' + data.wind;
+      document.getElementById('humidity').textContent = data.humidity;
+      document.getElementById('day').textContent = data.day;
+      document.getElementById('date').textContent = data.date;
+      messageEl.textContent = '';
+
+      const forecastEl = document.getElementById('forecast');
+      forecastEl.innerHTML = data.forecast
+        .map(item => `
+          <div class="forecast-day">
+            <div class="icon">${item.icon}</div>
+            <div>${item.day}</div>
+            <div>${item.temp}°</div>
+          </div>
+        `)
+        .join('');
     }
 
-    try {
-      const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`
-      );
-
-      if (!response.ok) throw new Error("City not found");
-
-      const data = await response.json();
-
-      const temp = data.main.temp;
-      const desc = data.weather[0].description;
-      const humidity = data.main.humidity;
-      const wind = data.wind.speed;
-
-      weatherDiv.innerHTML = `
-        <h3>${data.name}</h3>
-        <div class="temp">${temp}°C</div>
-        <p>${desc}</p>
-        <p>Humidity: ${humidity}%</p>
-        <p>Wind Speed: ${wind} m/s</p>
-      `;
-    } catch (error) {
-      weatherDiv.innerHTML = "Error fetching weather data.";
+    function renderNotFound(city) {
+      messageEl.textContent = `City not found: ${city}`;
+      document.getElementById('forecast').innerHTML = '';
+      document.getElementById('city-name').textContent = 'City Name';
+      document.getElementById('temp').textContent = '--°';
+      document.getElementById('condition').textContent = 'UNKNOWN';
+      document.getElementById('weather-icon').textContent = '❓';
+      document.getElementById('wind').textContent = 'Wind --';
+      document.getElementById('humidity').textContent = '--';
+      document.getElementById('day').textContent = '';
+      document.getElementById('date').textContent = '';
     }
-  }
-</script>
 
+    function getWeather() {
+      const city = cityInput.value.trim().toLowerCase();
+      if (!city) {
+        messageEl.textContent = 'Please enter a city name.';
+        return;
+      }
+
+      const data = mockWeather[city];
+      if (data) {
+        renderWeather(data);
+      } else {
+        renderNotFound(cityInput.value.trim());
+      }
+    }
+
+    renderWeather(mockWeather.london);
+  </script>
 </body>
 </html>
